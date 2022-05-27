@@ -1,0 +1,61 @@
+{
+  "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%":"",
+  "%%%%%%%%%%%%%%%%%%%% INPUT INFORMATION %%%%%%%%%%%%%%%%%%%%%":"",
+  "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%":"",
+
+  "input_shape": [1, 1, 224, 224],
+
+  "main_net": [
+    {
+      "type": "relu_cnnblock",
+      "padding": 1,
+      "stride": 1,
+      "channels": 32,
+      "kernel_size": 3,
+      "depthwise": 0
+    },
+    {"type": "maxpool2d"},
+    {
+      "type": "relu_cnnblock",
+      "padding": 1,
+      "stride": 1,
+      "channels": 64,
+      "kernel_size": 3,
+      "groups": 1
+    },
+    {"type": "maxpool2d"},
+
+    { "type": "separable","ch1x1": 32,"ch3x3": 64, "stride": 1},
+    {"type": "maxpool2d"},
+
+    { "type": "separable","ch1x1": 32,"ch3x3": 64, "stride": 1},
+    { "type": "separable","ch1x1": 32,"ch3x3": 64, "stride": 1},
+    {"type": "maxpool2d"},
+
+    { "type": "separable","ch1x1": 32,"ch3x3": 64, "stride": 1},
+    { "type": "separable","ch1x1": 32,"ch3x3": 64, "stride": 1},
+    { "type": "separable","ch1x1": 32,"ch3x3": 64, "stride": 1},
+    {"type": "maxpool2d"},
+
+    { "type": "separable","ch1x1": 32,"ch3x3": 64, "stride": 1},
+    { "type": "separable","ch1x1": 32,"ch3x3": 64, "stride": 1},
+    { "type": "separable","ch1x1": 64,"ch3x3": 64, "stride": 1},
+
+    {
+      "type": "avgpool2d",
+      "padding": 0,
+      "stride": 1,
+      "kernel_size": "adapt",
+      "ceil_mode": 1
+    },
+
+    {
+      "type": "linear",
+      "size": 2,
+      "activation": "default/none",
+      "initialization": "default",
+      "bias": 0
+    }
+  ]
+
+}
