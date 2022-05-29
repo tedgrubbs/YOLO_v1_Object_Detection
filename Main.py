@@ -11,6 +11,7 @@ class Trainer:
             self.config = json.load(fp)
 
         self.net = Network_Builder(self.config)
+        print(self.net)
 
 if __name__ == '__main__':
     print('\nBEGIN THE LEARNING\n')

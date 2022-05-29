@@ -5,6 +5,12 @@
 
   "input_shape": [1, 1, 224, 224],
 
+  "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%":"",
+  "%%%%%%%%%%%%%%%%%%%% NETWORK INFORMATION %%%%%%%%%%%%%%%%%%%%%":"",
+  "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%":"",
+
+  "global_activation": "gelu",
+
   "main_net": [
     {
       "type": "relu_cnnblock",
@@ -51,10 +57,18 @@
 
     {
       "type": "linear",
+      "size": "adapt",
+      "activation": "gelu",
+      "initialization": "default",
+      "bias": 1
+    },
+
+    {
+      "type": "linear",
       "size": 2,
       "activation": "default/none",
       "initialization": "default",
-      "bias": 0
+      "bias": 1
     }
   ]
 
