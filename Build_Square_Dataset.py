@@ -10,6 +10,10 @@ if __name__ == '__main__':
     if not path.exists(img_path):
         mkdir(img_path)
 
+    annotation_path = 'Square_Dataset/'
+    if not path.exists(annotation_path):
+        mkdir(annotation_path)
+
     with open('config.json' ,'r') as fp:
         config = json.load(fp)
 
@@ -17,18 +21,22 @@ if __name__ == '__main__':
     box_height = config['input_shape'][2]
     box_width = config['input_shape'][3]
     max_size = 16
-    max_boxes_per_image = 10
+    max_boxes_per_image = 5
 
     for i in range(num_images):
 
         arr = np.zeros((box_height, box_width), dtype='uint8')
         temp_box_count = np.random.randint(1, max_boxes_per_image+1)
+        output_string = []
 
         for box in range(temp_box_count):
             rand_center = np.random.randint(max_size, box_width-max_size+1, 2)
             rand_size = np.random.randint(2, max_size+1, 2)
             arr[rand_center[0] - rand_size[0] : rand_center[0] + rand_size[0] + 1, \
                 rand_center[1] - rand_size[1] : rand_center[1] + rand_size[1] + 1 ] = 255
+            output_string.append(np.append(rand_center, rand_size, axis=0))
 
         imdata = im.fromarray(arr)
         imdata.save(img_path + str(i) + '.png')
+        output_string = np.array(output_string)
+        np.savetxt(annotation_path + str(i) + '.txt', output_string, fmt='%d')
