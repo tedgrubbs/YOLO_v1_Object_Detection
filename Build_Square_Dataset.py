@@ -37,6 +37,6 @@ if __name__ == '__main__':
             output_string.append(np.append(rand_center, rand_size, axis=0))
 
         imdata = im.fromarray(arr)
-        imdata.save(img_path + str(i) + '.png')
+        imdata.save(img_path + str(i), format='png')
         output_string = np.array(output_string)
-        np.savetxt(annotation_path + str(i) + '.txt', output_string, fmt='%d')
+        np.save(annotation_path + str(i), output_string.astype('int'))
