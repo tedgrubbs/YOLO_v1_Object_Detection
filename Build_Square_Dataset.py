@@ -17,11 +17,11 @@ if __name__ == '__main__':
     with open('config.json' ,'r') as fp:
         config = json.load(fp)
 
-    num_images = 1000
+    num_images = 10000
     box_height = config['input_shape'][2]
     box_width = config['input_shape'][3]
     max_size = 16
-    max_boxes_per_image = 5
+    max_boxes_per_image = 10
 
     for i in range(num_images):
 

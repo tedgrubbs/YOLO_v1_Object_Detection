@@ -19,6 +19,8 @@ class Network_Builder(torch.nn.Module):
         global_activation = self.cfg['global_activation']
         if global_activation == 'gelu':
             global_activation = nn.GELU()
+        elif global_activation == 'relu':
+            global_activation = nn.ReLU()
 
         # stores the actual network layers for pytorch to use later
         self.network = nn.ModuleList()
@@ -92,7 +94,7 @@ class Network_Builder(torch.nn.Module):
                     new_layer = nn.Linear(last_layer_size[0], last_layer_size[0], bias=layers[i]['bias'])
                 else:
                     new_layer = nn.Linear(last_layer_size[0], layers[i]['size'], bias=layers[i]['bias'])
-                    
+
                 last_layer_size = [new_layer.out_features]
 
                 print('Layer', i,': linear with size', last_layer_size)

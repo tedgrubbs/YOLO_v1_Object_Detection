@@ -12,7 +12,7 @@ class Obj_Dataset(Dataset):
 
         self.images = listdir(config['img_path'])
         annotations = listdir(config['dataset_path'])
-        self.annotations = np.zeros((len(annotations), 5, 4))
+        self.annotations = np.zeros((len(annotations), 10, 4))
 
         for i in range(len(annotations)):
             index = int(annotations[i].split('.')[0])
@@ -20,7 +20,8 @@ class Obj_Dataset(Dataset):
             for obj in range(data.shape[0]):
                 self.annotations[index][obj] = data[obj]
 
-        print('Done intializing dataset')
+        print('\nDone intializing dataset')
+        print('Number of datapoints:', len(annotations), '\n')
 
 
     def __len__(self):
@@ -28,7 +29,7 @@ class Obj_Dataset(Dataset):
 
     def __getitem__(self, idx):
 
-        img = torch.from_numpy(np.asarray(im.open(self.img_path+str(idx)))).float()
-        anno = torch.from_numpy(self.annotations[idx]).float()
-        
+        img = torch.from_numpy(np.asarray(im.open(self.img_path+str(idx)))).float().unsqueeze(0)
+        anno = torch.from_numpy(self.annotations[idx]).long()
+
         return img, anno

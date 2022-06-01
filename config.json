@@ -8,16 +8,20 @@
   "dataset_path": "Square_Dataset/",
 
   "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%":"",
-  "%%%%%%%%%%%%%%%%%%%% TRAINING PARAMETERS %%%%%%%%%%%%%%%%%%%%%":"",
+  "%%%%%%%%%%%%%%%%%%%% TRAINING PARAMETERS %%%%%%%%%%%%%%%%%%%":"",
   "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%":"",
 
-  "batch_size": 64,
+  "batch_size": 32,
+  "num_epochs": 100,
+  "model_path": "model.pth",
+  "show_debug_plots": 0,
+  "lr": 1e-2,
 
   "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%":"",
   "%%%%%%%%%%%%%%%%%%%% NETWORK INFORMATION %%%%%%%%%%%%%%%%%%%%%":"",
   "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%":"",
 
-  "global_activation": "gelu",
+  "global_activation": "relu",
 
   "main_net": [
     {
@@ -25,8 +29,7 @@
       "padding": 1,
       "stride": 1,
       "channels": 32,
-      "kernel_size": 3,
-      "depthwise": 0
+      "kernel_size": 3
     },
     {"type": "maxpool2d"},
     {
@@ -34,26 +37,25 @@
       "padding": 1,
       "stride": 1,
       "channels": 64,
-      "kernel_size": 3,
-      "groups": 1
+      "kernel_size": 3
     },
     {"type": "maxpool2d"},
 
-    { "type": "separable","ch1x1": 32,"ch3x3": 64, "stride": 1},
+    { "type": "separable","ch1x1": 64,"ch3x3": 128, "stride": 1},
     {"type": "maxpool2d"},
 
-    { "type": "separable","ch1x1": 32,"ch3x3": 64, "stride": 1},
-    { "type": "separable","ch1x1": 32,"ch3x3": 64, "stride": 1},
+    { "type": "separable","ch1x1": 128,"ch3x3": 256, "stride": 1},
+    { "type": "separable","ch1x1": 128,"ch3x3": 256, "stride": 1},
     {"type": "maxpool2d"},
 
-    { "type": "separable","ch1x1": 32,"ch3x3": 64, "stride": 1},
-    { "type": "separable","ch1x1": 32,"ch3x3": 64, "stride": 1},
-    { "type": "separable","ch1x1": 32,"ch3x3": 64, "stride": 1},
+    { "type": "separable","ch1x1": 256,"ch3x3": 512, "stride": 1},
+    { "type": "separable","ch1x1": 256,"ch3x3": 512, "stride": 1},
+    { "type": "separable","ch1x1": 256,"ch3x3": 512, "stride": 1},
     {"type": "maxpool2d"},
 
-    { "type": "separable","ch1x1": 32,"ch3x3": 64, "stride": 1},
-    { "type": "separable","ch1x1": 32,"ch3x3": 64, "stride": 1},
-    { "type": "separable","ch1x1": 64,"ch3x3": 64, "stride": 1},
+    { "type": "separable","ch1x1": 512,"ch3x3": 1024, "stride": 1},
+    { "type": "separable","ch1x1": 512,"ch3x3": 1024, "stride": 1},
+    { "type": "separable","ch1x1": 1024,"ch3x3": 1024, "stride": 1},
 
     {
       "type": "avgpool2d",
@@ -66,14 +68,14 @@
     {
       "type": "linear",
       "size": "adapt",
-      "activation": "gelu",
+      "activation": "relu",
       "initialization": "default",
       "bias": 1
     },
 
     {
       "type": "linear",
-      "size": 2,
+      "size": 539,
       "activation": "default/none",
       "initialization": "default",
       "bias": 1
