@@ -5,13 +5,19 @@ from PIL import Image as im
 
 class Obj_Dataset(Dataset):
 
-    def __init__(self, config):
+    def __init__(self, config, train=True):
 
-        self.img_path = config['img_path']
-        self.dataset_path = config['dataset_path']
+        self.train = train
 
-        self.images = listdir(config['img_path'])
-        annotations = listdir(config['dataset_path'])
+        if train:
+            self.img_path = config['img_path']
+            self.dataset_path = config['dataset_path']
+        else:
+            self.img_path = config['val_img_path']
+            self.dataset_path = config['val_dataset_path']
+
+        self.images = listdir(self.img_path)
+        annotations = listdir(self.dataset_path)
         self.annotations = np.zeros((len(annotations), 10, 4))
 
         for i in range(len(annotations)):
@@ -29,7 +35,8 @@ class Obj_Dataset(Dataset):
 
     def __getitem__(self, idx):
 
-        img = torch.from_numpy(np.asarray(im.open(self.img_path+str(idx)))).float().unsqueeze(0)
+        with im.open(self.img_path+str(idx)) as new_image:
+            img = torch.from_numpy(np.asarray(new_image)).float().unsqueeze(0)
         anno = torch.from_numpy(self.annotations[idx]).long()
 
         return img, anno

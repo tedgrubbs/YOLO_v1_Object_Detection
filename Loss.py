@@ -142,12 +142,8 @@ class YOLO_Loss(torch.nn.Module):
                 dim_pred_b1 = y_pred[index, grid_cells[index][obj][1], grid_cells[index][obj][0], 4:6]
                 dim_pred_b2 = y_pred[index, grid_cells[index][obj][1], grid_cells[index][obj][0], 6:8]
 
-
-
                 pred_box_b1 = self.get_global_box(grid_cells[index][obj], local_pos_pred_b1, dim_pred_b1)
                 pred_box_b2 = self.get_global_box(grid_cells[index][obj], local_pos_pred_b2, dim_pred_b2)
-
-
 
                 b1_IOU = self.IOU(true_box, pred_box_b1)
                 b2_IOU = self.IOU(true_box, pred_box_b2)
@@ -157,6 +153,8 @@ class YOLO_Loss(torch.nn.Module):
                 #     self.plot_box(pred_box_b2, False)
                 #     self.plot_box(pred_box_b1, False)
 
+                # If both boxes are bad, this will choose one at random
+                # this prevent one box from being favored at the start of training
                 if b2_IOU == b1_IOU:
                     random_pick = np.random.rand() > 0.5
                 else:
@@ -181,7 +179,7 @@ class YOLO_Loss(torch.nn.Module):
                     # print('B1 better')
                     if self.config['show_debug_plots']:
                         self.plot_box(pred_box_b1, False)
-                        print('\nConfidence:', y_pred[indexing] [10])
+                        print('\nConfidence:', y_pred[indexing] [8], "Actual:", b1_IOU)
                         print('elsewhere:', y_pred[index, 3, 3] [10])
                         plt.scatter(self.cell_length*3,self.cell_length*3)
 
