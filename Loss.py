@@ -13,6 +13,8 @@ class YOLO_Loss(torch.nn.Module):
         self.cell_length = int(config['input_shape'][-1] / S)
         self.half_cell = self.cell_length / 2.
 
+        self.iou_threshold = 0.25
+
     # takes in cell index, local position, and normalized dimensions, and outputs coordinates for global bounding box
     def get_global_box(self, cell, pos, dim):
         dim = torch.clamp(dim, 0., 1.)
@@ -94,20 +96,27 @@ class YOLO_Loss(torch.nn.Module):
             # print('Real coordinates:', global_positions[index])
             # print('Cell index', grid_cells[index])
 
-            # showing all the boxes
-            # if self.config['show_debug_plots']:
-            #
-            #     for cellx in range(7):
-            #         for celly in range(7):
-            #             local_pos_pred_b1 = y_pred[index, celly, cellx, :2]
-            #             local_pos_pred_b2 = y_pred[index, celly, cellx, 2:4]
-            #             dim_pred_b1 = y_pred[index,  celly, cellx, 4:6]
-            #             dim_pred_b2 = y_pred[index,  celly, cellx, 6:8]
-            #
-            #             pred_box_b1 = self.get_global_box([cellx, celly], local_pos_pred_b1, dim_pred_b1)
-            #             pred_box_b2 = self.get_global_box([cellx, celly], local_pos_pred_b2, dim_pred_b2)
-            #             self.plot_box(pred_box_b2, False)
-            #             self.plot_box(pred_box_b1, False)
+            # showing all the boxes that pass the confidence threshold
+            if self.config['show_debug_plots']:
+
+                for cellx in range(self.S):
+                    for celly in range(self.S):
+                        local_pos_pred_b1 = y_pred[index, celly, cellx, :2]
+                        local_pos_pred_b2 = y_pred[index, celly, cellx, 2:4]
+                        dim_pred_b1 = y_pred[index,  celly, cellx, 4:6]
+                        dim_pred_b2 = y_pred[index,  celly, cellx, 6:8]
+
+                        pred_box_b1 = self.get_global_box([cellx, celly], local_pos_pred_b1, dim_pred_b1)
+                        pred_box_b2 = self.get_global_box([cellx, celly], local_pos_pred_b2, dim_pred_b2)
+
+                        if y_pred[index,  celly, cellx] [8] > self.iou_threshold:
+                            print('B1', y_pred[index,  celly, cellx] [8])
+                            self.plot_box(pred_box_b1, False)
+
+                        if y_pred[index,  celly, cellx] [9] > self.iou_threshold:
+                            print('B2', y_pred[index,  celly, cellx] [9])
+                            self.plot_box(pred_box_b2, False)
+
 
 
             # plt.imshow(x[index][0].detach().cpu())
@@ -163,8 +172,9 @@ class YOLO_Loss(torch.nn.Module):
 
                 if b2_IOU > b1_IOU or random_pick:
                     # print('B2 better')
-                    if self.config['show_debug_plots']:
-                        self.plot_box(pred_box_b2, False)
+                    # if self.config['show_debug_plots']:
+                    # #     if  y_pred[indexing] [9] > 0.5:
+                    #     self.plot_box(pred_box_b2, False)
 
                     obj_ij_pos[indexing] [2:4] = 1
                     obj_ij_dims[indexing] [6:8] = 1
@@ -177,11 +187,12 @@ class YOLO_Loss(torch.nn.Module):
 
                 else:
                     # print('B1 better')
-                    if self.config['show_debug_plots']:
-                        self.plot_box(pred_box_b1, False)
-                        print('\nConfidence:', y_pred[indexing] [8], "Actual:", b1_IOU)
-                        print('elsewhere:', y_pred[index, 3, 3] [10])
-                        plt.scatter(self.cell_length*3,self.cell_length*3)
+                    # if self.config['show_debug_plots']:
+                    # #     if  y_pred[indexing] [8] > 0.5:
+                    #     self.plot_box(pred_box_b1, False)
+                    #     print('\nConfidence:', y_pred[indexing] [8], "Actual:", b1_IOU)
+                    #     print('elsewhere:', y_pred[index, 3, 3] [10])
+                    #     plt.scatter(self.cell_length*3,self.cell_length*3)
 
                     obj_ij_pos[indexing] [:2] = 1
                     obj_ij_dims[indexing] [4:6] = 1
