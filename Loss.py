@@ -221,9 +221,10 @@ class YOLO_Loss(torch.nn.Module):
                 plt.show()
 
         mega_diff = (y_pred - y_hat) ** 2.
+        mega_diff_sqrt = (torch.sqrt(y_pred) - torch.sqrt(y_hat)) ** 2.
 
         loss = self.lambda_coord * (obj_ij_pos * mega_diff).sum() + \
-               self.lambda_coord * (obj_ij_dims * mega_diff).sum() + \
+               self.lambda_coord * (obj_ij_dims * mega_diff_sqrt).sum() + \
                (obj_ij_conf * mega_diff).sum() + \
                self.lambda_noobj * (noobj_ij_conf * mega_diff).sum() + \
                (obj_i_prob * mega_diff).sum()
