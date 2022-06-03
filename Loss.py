@@ -13,15 +13,18 @@ class YOLO_Loss(torch.nn.Module):
         self.cell_length = int(config['input_shape'][-1] / S)
         self.half_cell = self.cell_length / 2.
 
+        self.max_dim = 16.
+
         self.iou_threshold = 0.25
 
     # takes in cell index, local position, and normalized dimensions, and outputs coordinates for global bounding box
     def get_global_box(self, cell, pos, dim):
         dim = torch.clamp(dim, 0., 1.)
-        x_right = cell[1]*self.cell_length + pos[1]*self.half_cell + dim[1]*self.config['input_shape'][-1]
-        y_top = cell[0]*self.cell_length + pos[0]*self.half_cell + dim[0]*self.config['input_shape'][-1]
-        x_left = cell[1]*self.cell_length + pos[1]*self.half_cell - dim[1]*self.config['input_shape'][-1]
-        y_bottom = cell[0]*self.cell_length + pos[0]*self.half_cell - dim[0]*self.config['input_shape'][-1]
+        pos = pos * 2. - 1.
+        x_right = cell[1]*self.cell_length + pos[1]*self.half_cell + dim[1]*self.max_dim
+        y_top = cell[0]*self.cell_length + pos[0]*self.half_cell + dim[0]*self.max_dim
+        x_left = cell[1]*self.cell_length + pos[1]*self.half_cell - dim[1]*self.max_dim
+        y_bottom = cell[0]*self.cell_length + pos[0]*self.half_cell - dim[0]*self.max_dim
 
         if x_right == x_left: x_right += 1
         if y_bottom == y_top: y_top += 1
@@ -72,7 +75,7 @@ class YOLO_Loss(torch.nn.Module):
         y_pred = y_pred.view(y_pred.size(0), self.S, self.S, -1)
 
         global_positions = y[:, :, :2]
-        box_dims = y[:, :, 2:] / self.config['input_shape'][-1] # Normalizing box size by image width to normalize it between 0 and 1
+        box_dims = y[:, :, 2:] / self.max_dim #self.config['input_shape'][-1] # Normalizing box size by image width to normalize it between 0 and 1
 
         # cell indices for each object
         grid_cells = torch.round(global_positions / self.cell_length).long()
@@ -130,9 +133,9 @@ class YOLO_Loss(torch.nn.Module):
                 if (global_positions[index][obj][0] == 0 and global_positions[index][obj][1] == 0):
                     break
 
-                # normalizes positions to between -1 and 1, making them relative to their particular grid cell center
-                local_x = (global_positions[index][obj][1] - grid_cells[index][obj][1]*self.cell_length) / self.half_cell
-                local_y = (global_positions[index][obj][0] - grid_cells[index][obj][0]*self.cell_length) / self.half_cell
+                # normalizes positions to between 0 and 1, making them relative to their particular grid cell center
+                local_x = ((global_positions[index][obj][1] - grid_cells[index][obj][1]*self.cell_length) / self.half_cell + 1.) / 2.
+                local_y = ((global_positions[index][obj][0] - grid_cells[index][obj][0]*self.cell_length) / self.half_cell + 1.) / 2.
 
 
                 pos_true = torch.as_tensor([local_y, local_x])
@@ -221,10 +224,9 @@ class YOLO_Loss(torch.nn.Module):
                 plt.show()
 
         mega_diff = (y_pred - y_hat) ** 2.
-        mega_diff_sqrt = (torch.sqrt(y_pred) - torch.sqrt(y_hat)) ** 2.
 
         loss = self.lambda_coord * (obj_ij_pos * mega_diff).sum() + \
-               self.lambda_coord * (obj_ij_dims * mega_diff_sqrt).sum() + \
+               self.lambda_coord * (obj_ij_dims * mega_diff).sum() + \
                (obj_ij_conf * mega_diff).sum() + \
                self.lambda_noobj * (noobj_ij_conf * mega_diff).sum() + \
                (obj_i_prob * mega_diff).sum()
