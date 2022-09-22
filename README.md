@@ -1,5 +1,5 @@
-# Object_Detection_Because_Why_Not
-My attempt at implementing YOLOv1 from scratch using just Pytorch and numpy. I have implemented the loss function from scratch which has been the hardest part.
+# YOLO v1 object detection
+The YOLO v1 algorithm for object detection is elegant in its simplicity and speed. I decided that it would be educational to implement it as a first try into object detection. Implementing the loss function from scratch has been the hardest part.
 
 Network is easily configurable but more options are needed to make things more customizable.
 
